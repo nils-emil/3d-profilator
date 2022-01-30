@@ -14,6 +14,7 @@ export default function App() {
             <Box position={[-2.2, 0, 0]}/>
             <Box position={[1.2, 0, 0]}/>
             <Terrain/>
+            <Character/>
             <Camera/>
         </Canvas>
     )

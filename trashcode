@@ -1,0 +1,105 @@
+   function handler({key}) {
+        let pressedKeys = [...currentKeys];
+        if (currentKeys.indexOf(key) < 0) {
+            pressedKeys.push(key);
+            setCurrentKeys(pressedKeys)
+        }
+        if (currentKeys.length === 0) {
+            return;
+        }
+
+        if (containsAll(["ArrowUp", "ArrowLeft"])) {
+            setDirection("north-west")
+        } else if (containsAll(["ArrowUp", "ArrowRight"])) {
+            setDirection("north-east")
+        } else if (containsAll(["ArrowDown", "ArrowLeft"])) {
+            setDirection("south-west")
+        } else if (containsAll(["ArrowDown", "ArrowRight"])) {
+            setDirection("south-east")
+        } else if (containsAll(["ArrowUp"])) {
+            console.log("setting top")
+            setDirection("north")
+        } else if (containsAll(["ArrowDown"])) {
+            setDirection("south")
+        } else if (containsAll(["ArrowLeft"])) {
+            setDirection("west")
+        } else if (containsAll(["ArrowRight"])) {
+            setDirection("east")
+        }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+    import {useFrame} from "@react-three/fiber";
+    import React, {useRef, useState,} from 'react'
+    import useEventListener from "@use-it/event-listener";
+    import * as THREE from "three";
+
+
+    function usePosition(source, apply) {
+        const [currentKeys, setCurrentKeys] = useState([]);
+        const [velocity, setVelocity] = useState(0.15);
+        const bind = useRef()
+        useFrame((camera) => {
+            console.log("render")
+            let object = apply(bind);
+            let cameraX = camera.camera.position.x ;
+            let cameraY = camera.camera.position.y - 3;
+            let cameraZ = camera.camera.position.z - 5;
+            if (currentKeys.indexOf('ArrowUp') >= 0) {
+                object.position.set(cameraX, cameraY, cameraZ)
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromAxisAngle(new THREE.Vector3(0, cameraY + 1, 0), 0);
+                object.quaternion.slerp(quaternion, 0.1);
+            }
+            if (currentKeys.indexOf('ArrowDown') >= 0) {
+                object.position.set(cameraX, cameraY, cameraZ)
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromAxisAngle(new THREE.Vector3(0, cameraY + 1, 0), Math.PI);
+                object.quaternion.slerp(quaternion, 0.1);
+            }
+            if (currentKeys.indexOf('ArrowLeft') >= 0) {
+                setVelocity(velocity + 0.01)
+                object.position.set(cameraX, cameraY, cameraZ)
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromAxisAngle(new THREE.Vector3(0, cameraY + 1, 0), Math.PI / 2);
+                object.quaternion.slerp(quaternion, 0.1);
+            }
+            if (currentKeys.indexOf('ArrowRight') >= 0) {
+                object.position.set(cameraX, cameraY, cameraZ)
+                const quaternion = new THREE.Quaternion();
+                quaternion.setFromAxisAngle(new THREE.Vector3(0, cameraY + 1, 0), -Math.PI / 2);
+                object.quaternion.slerp(quaternion, 0.1);
+            }
+
+        })
+
+
+        function handler({key}) {
+            if (currentKeys.indexOf(key) < 0) {
+                let newArra = [...currentKeys];
+                newArra.push(key);
+                setCurrentKeys(newArra)
+            }
+        }
+
+        function clear({key}) {
+            setCurrentKeys(currentKeys.filter(e => e !== key))
+        }
+
+        useEventListener('keydown', handler);
+        useEventListener('keyup', clear);
+
+        return bind
+    }
+
+    export default usePosition;
