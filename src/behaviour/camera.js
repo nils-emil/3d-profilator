@@ -31,6 +31,7 @@ function Camera(props) {
     });
 
     function handler({ key }) {
+        window.play = true;
         if (currentKeys.indexOf(key) < 0) {
             let newArray = [...currentKeys];
             newArray.push(key);
@@ -39,7 +40,11 @@ function Camera(props) {
     }
 
     function clear({key}) {
-        setCurrentKeys(currentKeys.filter(e => e !== key))
+        let filter = currentKeys.filter(e => e !== key);
+        window.play = filter.length !== 0;
+        console.log(window.play)
+
+        setCurrentKeys(filter)
     }
 
     useEventListener('keydown', handler);
